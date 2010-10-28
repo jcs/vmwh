@@ -1,0 +1,28 @@
+vmwh is a vmware userland (x11) helper, developed on openbsd to run alongside
+the vmt(4) vmware kernel driver, though it does not need the kernel driver for
+anything so it may work on other operating systems.  it is developed on amd64,
+though there is i386 assembly code (taken from vmt(4)) which should work the
+same.
+
+
+current features
+
+ - detects when the mouse cursor switches back to the host ("ungrabs") and
+   sends the guest's x11 cursor coordinates.
+
+ - detects when the mouse cursor switches back to the guest ("grabs") and
+   warps the x11 cursor to the host mouse's coordinates.
+
+
+still in development
+
+ - clipboard synchronization, which will send the clipboard contents back and
+   forth on the grab/ungrab events.
+
+
+resources
+
+ - http://chitchat.at.infoseek.co.jp/vmware/backdoor.html
+ - http://lists.freedesktop.org/archives/xorg/2010-April/049810.html
+ - xclip source code (gpl): http://xclip.svn.sourceforge.net/viewvc/xclip/trunk/
+ - open-vm tools (lgpl): http://open-vm-tools.sourceforge.net/
