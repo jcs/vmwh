@@ -1,6 +1,7 @@
 /*
  * Copyright (c) 2007 David Crawshaw <david@zentus.com>
  * Copyright (c) 2008 David Gwynne <dlg@openbsd.org>
+ * Copyright (c) 2010 joshua stein <jcs@jcs.org>
  *
  * Permission to use, copy, modify, and distribute this software for any
  * purpose with or without fee is hereby granted, provided that the above
