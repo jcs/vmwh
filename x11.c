@@ -41,7 +41,7 @@ x11_set_clipboard(char *buf)
 
 	if (debug) {
 		char visbuf[strlen(buf) * 4];
-		strnvis(visbuf, buf, sizeof(visbuf), VIS_WHITE | VIS_CSTYLE);
+		strnvis(visbuf, buf, sizeof(visbuf), VIS_TAB | VIS_NL | VIS_CSTYLE);
 		printf("x11_set_clipboard: \"%s\"\n", visbuf);
 	}
 
