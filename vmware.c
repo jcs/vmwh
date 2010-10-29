@@ -37,14 +37,14 @@ int mouse_grabbed = 0;
 
 /* Commands, passed on ECX.LOW. */
 #define VM_CMD_GET_MOUSEPOS		0x04
-#define	 VM_MOUSE_UNGRABBED_POS		-100
+#define	VM_MOUSE_UNGRABBED_POS		-100
 #define VM_CMD_SET_MOUSEPOS		0x05
 #define VM_CMD_GET_CLIPBOARD_LEN	0x06
 #define VM_CMD_GET_CLIPBOARD		0x07
 #define VM_CMD_SET_CLIPBOARD_LEN	0x08
 #define VM_CMD_SET_CLIPBOARD		0x09
 #define VM_CMD_GET_VERSION		0x0a
-#define  VM_VERSION_UNMANAGED			0x7fffffff
+#define VM_VERSION_UNMANAGED		0x7fffffff
 
 /* A register. */
 union vm_reg {
