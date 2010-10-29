@@ -24,8 +24,6 @@
 
 #include "vmwh.h"
 
-int16_t host_mouse_x;
-int16_t host_mouse_y;
 int mouse_grabbed = 0;
 
 /* "The" magic number, always occupies the EAX register. */
@@ -181,8 +179,6 @@ void
 vmware_get_mouse_position(void)
 {
 	struct vm_backdoor frame;
-	int last_x = host_mouse_x;
-	int last_y = host_mouse_y;
 	int was_grabbed = mouse_grabbed;
 
 	bzero(&frame, sizeof(frame));
@@ -195,39 +191,14 @@ vmware_get_mouse_position(void)
 
 	vm_cmd(&frame);
 
-	host_mouse_x = frame.eax.word >> 16;
-	host_mouse_y = frame.eax.word & 0xffff;
-
-	if (host_mouse_x == VM_MOUSE_UNGRABBED_POS)
+	if ((int16_t)(frame.eax.word >> 16) == VM_MOUSE_UNGRABBED_POS)
 		mouse_grabbed = 0;
 	else
 		mouse_grabbed = 1;
 
-	if (debug && ((last_x != host_mouse_x) || (last_y != host_mouse_y) ||
-	    (was_grabbed != mouse_grabbed)))
-		printf("vmware_get_mouse_position: host cursor is at %d, %d (%s)\n",
-			host_mouse_x, host_mouse_y, (mouse_grabbed ? "grabbed"
-			: "ungrabbed"));
-}
-
-void
-vmware_set_mouse_position(int x, int y)
-{
-	struct vm_backdoor frame;
-
-	if (debug)
-		printf("vmware_set_mouse_position: setting to %d, %d\n", x, y);
-
-	bzero(&frame, sizeof(frame));
-
-	frame.eax.word      = VM_MAGIC;
-	frame.ecx.part.low  = VM_CMD_SET_MOUSEPOS;
-	frame.ecx.part.high = 0xffff;
-	frame.edx.part.low  = VM_PORT_CMD;
-	frame.edx.part.high = 0;
-	frame.ebx.word      = ((uint32_t)x << 16) | y;
-
-	vm_cmd(&frame);
+	if (debug && (was_grabbed != mouse_grabbed))
+		printf("vmware_get_mouse_position: host cursor is %s\n",
+			(mouse_grabbed ? "grabbed" : "ungrabbed"));
 }
 
 int

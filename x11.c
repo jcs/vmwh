@@ -20,36 +20,31 @@
 #include <err.h>
 #include <vis.h>
 
-#include <X11/Xlib.h>
-#include <X11/Xatom.h>
-#include <X11/Xmu/Atoms.h>
-
 #include "vmwh.h"
 
+#define XCLIP_VERSION "xclip -version 2>&1"
 #define XCLIP_READ "xclip -out -selection clipboard"
 #define XCLIP_WRITE "xclip -in -selection clipboard"
 
-struct xinfo {
-	Display *dpy;
-	int screen;
-	Window win;
-	Window root;
-} x11;
-
 void
-x11_init(void) {
-	bzero(&x11, sizeof(struct xinfo));
+x11_verify_xclip_presence(void) {
+	FILE *xclip;
+	char *lbuf;
+	int found = 0;
+	size_t len;
 
-	if (!(x11.dpy = XOpenDisplay(NULL)))
-		errx(1, "unable to open display %s", XDisplayName(NULL));
-	
-	x11.screen = DefaultScreen(x11.dpy);
-	x11.root = RootWindow(x11.dpy, x11.screen);
+	xclip = popen(XCLIP_VERSION, "r");
+	if (xclip == NULL)
+		errx(1, "couldn't run xclip (" XCLIP_VERSION ")");
 
-	x11.win = XCreateSimpleWindow(x11.dpy, XDefaultRootWindow(x11.dpy), 0, 0, 1,
-		1, 0, 0, 0);
+	while ((lbuf = fgetln(xclip, &len)) != NULL)
+		if (strncmp(lbuf, "xclip version", 13) == 0)
+			found = 1;
 
-	XSelectInput(x11.dpy, x11.win, PropertyChangeMask);
+	pclose(xclip);
+
+	if (!found)
+		errx(1, "couldn't run xclip; is it installed?");
 }
 
 void
@@ -124,11 +119,4 @@ x11_get_clipboard(char **buf)
 		return (0);
 	} else
 		return (1);
-}
-
-void
-x11_set_cursor(int x, int y)
-{
-	XWarpPointer(x11.dpy, None, x11.root, 0, 0, 0, 0, x, y);
-	XFlush(x11.dpy);
 }

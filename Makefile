@@ -2,13 +2,10 @@
 
 CC	= cc
 CFLAGS	= -O2 -Wall -Wunused -Wmissing-prototypes -Wstrict-prototypes
-INCLUDES= -I/usr/X11R6/include
+#CFLAGS += -g
 
-LIBS	= -lX11 -lXmu
-LDPATH	= -L/usr/X11R6/lib
-
-PREFIX	= /usr/local
-BINDIR	= $(DESTDIR)$(PREFIX)/bin
+PREFIX	 = /usr/local
+BINDIR	 = $(DESTDIR)$(PREFIX)/bin
 
 INSTALL_PROGRAM = install -s
 
