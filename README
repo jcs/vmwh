@@ -4,20 +4,15 @@ anything so it may work on other operating systems.  it is developed on amd64,
 though there is i386 assembly code (taken from vmt(4)) which should work the
 same.
 
+it currently detects when the mouse cursor switches back to the host
+("ungrabs") and sends the guest's x11 cursor coordinates, which makes vmware
+adjust the host cursor to match.  it also sends the x11 clipboard data (read
+from xclip) to vmware which gets put onto the host's clipboard.
 
-current features
-
- - detects when the mouse cursor switches back to the host ("ungrabs") and
-   sends the guest's x11 cursor coordinates.
-
- - detects when the mouse cursor switches back to the guest ("grabs") and
-   warps the x11 cursor to the host mouse's coordinates.
-
-
-still in development
-
- - clipboard synchronization, which will send the clipboard contents back and
-   forth on the grab/ungrab events.
+it then detects when the mouse cursor switches back to the guest ("grabs") and
+warps the x11 cursor to the host cursor's last coordinates.  it also reads the
+host's clipboard data through vmware and replaces the x11 clipboard buffer with
+that data (again using xclip).
 
 
 resources
