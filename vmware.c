@@ -206,7 +206,6 @@ vmware_get_clipboard(char **buf)
 {
 	struct vm_backdoor frame;
 	uint32_t total, left;
-	char *tbuf;
 
 	bzero(&frame, sizeof(frame));
 
@@ -231,7 +230,7 @@ vmware_get_clipboard(char **buf)
 		printf("vmware_get_clipboard: have %d byte%s to read\n",
 			total, (total == 1 ? "" : "s"));
 
-	if ((tbuf = malloc(total + 1)) == NULL)
+	if ((*buf = malloc(total + 1)) == NULL)
 		err(1, "malloc");
 
 	for (;;) {
@@ -245,17 +244,15 @@ vmware_get_clipboard(char **buf)
 
 		vm_cmd(&frame);
 
-		memcpy(tbuf + (total - left), &frame.eax.word,
+		memcpy(*buf + (total - left), &frame.eax.word,
 			left > 4 ? 4 : left);
 
 		if (left <= 4) {
-			tbuf[total] = '\0';
+			buf[0][total] = '\0';
 			break;
 		} else
 			left -= 4;
 	}
-
-	*buf = tbuf;
 
 	if (debug) {
 		char visbuf[strlen(*buf) * 4];

@@ -74,8 +74,8 @@ int
 x11_get_clipboard(char **buf)
 {
 	FILE *xclip;
-	char *tbuf = NULL, *lbuf;
-	size_t len;
+	char tbuf[1024];
+	size_t len, buflen = 0;
 
 	xclip = popen(XCLIP_READ, "r");
 	if (xclip == NULL) {
@@ -83,24 +83,23 @@ x11_get_clipboard(char **buf)
 		return (0);
 	}
 
-	while ((lbuf = fgetln(xclip, &len)) != NULL) {
-		lbuf[len] = '\0';
-
-		if (tbuf == NULL) {
-			tbuf = malloc(len);
-			memcpy(tbuf, lbuf, len);
-			tbuf[len] = '\0';
+	while ((len = fread(tbuf, 1, 4, xclip)) != 0) {
+		if (*buf == NULL) {
+			*buf = (char *)malloc(len + 2);
+			memcpy(*buf, tbuf, len);
+			buflen = len;
 		} else {
-			if ((tbuf = realloc(tbuf, strlen(tbuf) + len)) == NULL)
+			if ((*buf = (char *)realloc(*buf, buflen + len + 2)) == NULL)
 				err(1, "realloc");
 
-			strncat(tbuf, lbuf, len);
+			memcpy(*buf + buflen, tbuf, len);
+			buflen += len;
 		}
 	}
-
+	if (*buf != NULL)
+		buf[0][buflen] = '\0';
+	
 	pclose(xclip);
-
-	*buf = tbuf;
 
 	if (debug) {
 		if (*buf == NULL)
@@ -114,9 +113,6 @@ x11_get_clipboard(char **buf)
 
 	if (*buf == NULL)
 		return (0);
-	else if (strlen(*buf) == 0) {
-		free(*buf);
-		return (0);
-	} else
+	else
 		return (1);
 }

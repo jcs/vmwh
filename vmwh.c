@@ -54,7 +54,7 @@ main(int argc, char *argv[])
 
 		if (mouse_grabbed && (!was_grabbed || !done_init)) {
 			/* transitioned from host -> guest */
-			char *clip;
+			char *clip = NULL;
 
 			if (debug)
 				printf("transitioned from host -> guest\n");
@@ -67,7 +67,7 @@ main(int argc, char *argv[])
 
 		else if (!mouse_grabbed && (was_grabbed || !done_init)) {
 			/* transitioned from guest -> host */
-			char *clip;
+			char *clip = NULL;
 
 			if (debug)
 				printf("transitioned from guest -> host\n");
