@@ -26,6 +26,9 @@
 
 #include "vmwh.h"
 
+#define XCLIP_READ "xclip -out -selection clipboard"
+#define XCLIP_WRITE "xclip -in -selection clipboard"
+
 struct xinfo {
 	Display *dpy;
 	int screen;
@@ -52,8 +55,7 @@ x11_init(void) {
 void
 x11_set_clipboard(char *buf)
 {
-	XEvent ev, response;
-	XSelectionRequestEvent *req;
+	FILE *xclip;
 
 	if (debug) {
 		char visbuf[strlen(buf) * 4];
@@ -61,48 +63,67 @@ x11_set_clipboard(char *buf)
 		printf("x11_set_clipboard: \"%s\"\n", visbuf);
 	}
 
-	XSetSelectionOwner(x11.dpy, XA_CLIPBOARD(x11.dpy), x11.win, CurrentTime);
-
-	/* FIXME */ return; 
-
-	while (1) {
-		XNextEvent(x11.dpy, &ev);
-
-		if (ev.type != SelectionRequest)
-			continue;
-
-		req = &(ev.xselectionrequest);
-
-		if (req->target == XA_STRING) {
-			XChangeProperty(x11.dpy, req->requestor,
-				req->property, req->target,
-				8, PropModeReplace,
-				(unsigned char *) buf,
-				strlen(buf));
-			response.xselection.property = req->property;
-		} else
-			response.xselection.property = None;
-
-		response.xselection.type = SelectionNotify;
-		response.xselection.display = x11.dpy;
-		response.xselection.requestor = req->requestor;
-		response.xselection.selection = req->selection;
-		response.xselection.target = req->target;
-		response.xselection.time = req->time;
-
-		XSendEvent(x11.dpy, req->requestor, 0, 0, &response);
-		XFlush(x11.dpy);
-
-		break;
+	xclip = popen(XCLIP_WRITE, "w");
+	if (xclip == NULL) {
+		warn("couldn't write to xclip (" XCLIP_WRITE ")");
+		return;
 	}
+
+	fprintf(xclip, buf);
+	fflush(xclip);
+
+	pclose(xclip);
 }
 
 int
 x11_get_clipboard(char **buf)
 {
-	/* TODO */
+	FILE *xclip;
+	char *tbuf = NULL, *lbuf;
+	size_t len;
 
-	return (0);
+	xclip = popen(XCLIP_READ, "r");
+	if (xclip == NULL) {
+		warn("couldn't read from xclip (" XCLIP_READ ")");
+		return (0);
+	}
+
+	while ((lbuf = fgetln(xclip, &len)) != NULL) {
+		lbuf[len] = '\0';
+
+		if (tbuf == NULL) {
+			tbuf = malloc(len);
+			memcpy(tbuf, lbuf, len);
+			tbuf[len] = '\0';
+		} else {
+			if ((tbuf = realloc(tbuf, strlen(tbuf) + len)) == NULL)
+				err(1, "realloc");
+
+			strncat(tbuf, lbuf, len);
+		}
+	}
+
+	pclose(xclip);
+
+	*buf = tbuf;
+
+	if (debug) {
+		if (*buf == NULL)
+			printf("x11_get_clipboard: nothing there\n");
+		else {
+			char visbuf[strlen(*buf) * 4];
+			strnvis(visbuf, *buf, sizeof(visbuf), VIS_TAB | VIS_NL | VIS_CSTYLE);
+			printf("x11_get_clipboard: \"%s\"\n", visbuf);
+		}
+	}
+
+	if (*buf == NULL)
+		return (0);
+	else if (strlen(*buf) == 0) {
+		free(*buf);
+		return (0);
+	} else
+		return (1);
 }
 
 void

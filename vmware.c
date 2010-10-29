@@ -235,6 +235,7 @@ vmware_get_clipboard(char **buf)
 {
 	struct vm_backdoor frame;
 	uint32_t total, left;
+	char *tbuf;
 
 	bzero(&frame, sizeof(frame));
 
@@ -255,7 +256,11 @@ vmware_get_clipboard(char **buf)
 		return (0);
 	}
 
-	if ((*buf = malloc(total + 1)) == NULL)
+	if (debug)
+		printf("vmware_get_clipboard: have %d byte%s to read\n",
+			total, (total == 1 ? "" : "s"));
+
+	if ((tbuf = malloc(total + 1)) == NULL)
 		err(1, "malloc");
 
 	for (;;) {
@@ -269,15 +274,17 @@ vmware_get_clipboard(char **buf)
 
 		vm_cmd(&frame);
 
-		memcpy(*buf + (total - left), &frame.eax.word,
+		memcpy(tbuf + (total - left), &frame.eax.word,
 			left > 4 ? 4 : left);
 
 		if (left <= 4) {
-			*(buf + total) = '\0';
+			tbuf[total] = '\0';
 			break;
 		} else
 			left -= 4;
 	}
+
+	*buf = tbuf;
 
 	if (debug) {
 		char visbuf[strlen(*buf) * 4];
@@ -310,7 +317,7 @@ vmware_set_clipboard(char *buf)
 	frame.ecx.part.high = 0xffff;
 	frame.edx.part.low  = VM_PORT_CMD;
 	frame.edx.part.high = 0;
-	frame.ebx.word      = strlen(buf);
+	frame.ebx.word      = (uint32_t)strlen(buf);
 
 	vm_cmd(&frame);
 
@@ -324,10 +331,11 @@ vmware_set_clipboard(char *buf)
 		frame.ecx.part.high = 0xffff;
 		frame.edx.part.low  = VM_PORT_CMD;
 		frame.edx.part.high = 0;
-		vm_cmd(&frame);
 
 		memcpy(&frame.ebx.word, buf + (total - left),
 			left > 4 ? 4 : left);
+
+		vm_cmd(&frame);
 
 		if (left <= 4)
 			break;
