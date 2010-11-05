@@ -32,7 +32,7 @@ through the vmware backdoor.
 
 
 1. vmwh does not interface with the kernel or the vmmouse driver in any way, so
-   it may work on other operating systems.  it is developed on amd64 though
-   there is i386 assembly code taken from vmt(4) so it should work there, too.
+   it may work on other operating systems.  it is developed on amd64 and has
+   been tested on i386.
 
 2. http://chitchat.at.infoseek.co.jp/vmware/backdoor.html
