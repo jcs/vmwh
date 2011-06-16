@@ -64,7 +64,7 @@ x11_set_clipboard(char *buf)
 		return;
 	}
 
-	fprintf(xclip, buf);
+	fprintf(xclip, "%s", buf);
 	fflush(xclip);
 
 	pclose(xclip);
