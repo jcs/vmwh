@@ -1,5 +1,5 @@
 vmwh
-Copyright (c) 2010 joshua stein <jcs@jcs.org>
+Copyright (c) 2010-2011 joshua stein <jcs@jcs.org>
 
 Permission to use, copy, modify, and distribute this software for any
 purpose with or without fee is hereby granted, provided that the above
@@ -16,8 +16,10 @@ OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 --
 
 vmwh is a vmware helper for x11, developed on openbsd to run in userland
-alongside the vmt(4) vmware kernel driver[1] and the vmmouse xorg driver.  it
-currently requires xclip to do the x11 clipboard manipulation.
+alongside the vmt(4) vmware kernel driver[1] and, optionally, the vmmouse xorg
+driver (unless the -m option is used, in which case vmwh handles mouse position
+synchronization itself).  it currently requires xclip to do the x11 clipboard
+manipulation.
 
 it detects when the mouse cursor switches back to the host ("ungrabs") and
 sends the guest's x11 clipboard data (read from xclip) to the host through the
