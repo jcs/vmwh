@@ -3,6 +3,10 @@
 CC	= cc
 CFLAGS	= -O2 -Wall -Wunused -Wmissing-prototypes -Wstrict-prototypes
 #CFLAGS += -g
+INCLUDES = -I/usr/X11R6/include
+
+LIBS	 = -lX11 -lXmu
+LDPATH	 = -L/usr/X11R6/lib
 
 PREFIX	 = /usr/local
 BINDIR	 = $(DESTDIR)$(PREFIX)/bin

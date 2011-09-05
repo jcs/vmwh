@@ -30,15 +30,19 @@ main(int argc, char *argv[])
 {
 	int done_init = 0;
 	int was_grabbed = 0;
+	int handle_mouse = 0;
 	int ch;
 
 	x11_verify_xclip_presence();
 	vmware_check_version();
 
-	while ((ch = getopt(argc, argv, "d")) != -1)
+	while ((ch = getopt(argc, argv, "dm")) != -1)
 		switch (ch) {
 		case 'd':
 			debug = 1;
+			break;
+		case 'm':
+			handle_mouse = 1;
 			break;
 		default:
 			usage();
@@ -47,6 +51,9 @@ main(int argc, char *argv[])
 	argv += optind;
 
 	vmware_get_mouse_position();
+
+	if (handle_mouse)
+		x11_init();
 
 	for (;;) {
 		was_grabbed = mouse_grabbed;
@@ -63,6 +70,10 @@ main(int argc, char *argv[])
 				x11_set_clipboard(clip);
 				free(clip);
 			}
+
+			if (handle_mouse)
+				x11_set_mouse_position(host_mouse_x,
+				    host_mouse_y);
 		}
 
 		else if (!mouse_grabbed && (was_grabbed || !done_init)) {
@@ -76,6 +87,10 @@ main(int argc, char *argv[])
 				vmware_set_clipboard(clip);
 				free(clip);
 			}
+
+			if (handle_mouse)
+				vmware_set_mouse_position(host_mouse_x,
+				    host_mouse_y);
 		}
 
 		if (!done_init)
@@ -90,6 +105,6 @@ main(int argc, char *argv[])
 void
 usage(void)
 {
-	(void)fprintf(stderr, "usage: vmwh [-d]\n");
+	(void)fprintf(stderr, "usage: vmwh [-d] [-m]\n");
 	exit(1);
 }
