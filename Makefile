@@ -1,5 +1,7 @@
 # vim:ts=8
 
+VERS	:= 1.1
+
 CC	= cc
 CFLAGS	= -O2 -Wall -Wunused -Wmissing-prototypes -Wstrict-prototypes
 #CFLAGS += -g
@@ -28,6 +30,13 @@ install: all
 	$(INSTALL_PROGRAM) $(PROG) $(BINDIR)
 
 clean:
-	rm -f $(PROG) $(OBJS) 
+	rm -f $(PROG) $(OBJS)
+
+release: all
+	@mkdir $(PROG)-${VERS}
+	@cp Makefile *.c $(PROG)-$(VERS)/
+	@tar -czf ../$(PROG)-$(VERS).tar.gz $(PROG)-$(VERS)
+	@rm -rf $(PROG)-$(VERS)/
+	@echo "made release ${VERS}"
 
 .PHONY: all install clean
