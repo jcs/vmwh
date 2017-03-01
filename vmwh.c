@@ -34,7 +34,6 @@ main(int argc, char *argv[])
 	int ch;
 
 	x11_verify_xclip_presence();
-	vmware_check_version();
 
 	while ((ch = getopt(argc, argv, "dm")) != -1)
 		switch (ch) {
@@ -49,6 +48,8 @@ main(int argc, char *argv[])
 		}
 	argc -= optind;
 	argv += optind;
+
+	vmware_check_version();
 
 	vmware_get_mouse_position();
 
