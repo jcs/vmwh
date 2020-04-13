@@ -61,7 +61,7 @@ union vm_reg {
 	} words;
 	uint64_t quad;
 #endif
-} __packed;
+} __attribute__((__packed__));
 
 /* A register frame. */
 struct vm_backdoor {
@@ -72,7 +72,7 @@ struct vm_backdoor {
 	union vm_reg esi;
 	union vm_reg edi;
 	union vm_reg ebp;
-} __packed;
+} __attribute__((__packed__));
 
 void vm_cmd(struct vm_backdoor *);
 void vm_ins(struct vm_backdoor *);
